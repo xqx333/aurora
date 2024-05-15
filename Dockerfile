@@ -20,17 +20,13 @@ FROM alpine:latest
 
 # 设置工作目录
 WORKDIR /app
-RUN apk add --no-cache tzdata curl busybox-extras
+RUN apk add --no-cache tzdata
 
 # 从构建阶段复制编译好的应用和资源
 COPY --from=builder /app/aurora /app/aurora
 COPY harPool /app/harPool
 
-# 创建定时任务脚本
-RUN echo "*/5 * * * * curl -s 'https://api.ipify.org?format=json'" > /etc/crontabs/root
-
-# 启动容器时运行 curl 命令并打印结果,然后启动 crond 服务和应用
-CMD curl -s 'https://api.ipify.org?format=json' && crond -f & /app/aurora
-
 # 暴露端口
 EXPOSE 8080
+
+CMD ["/app/aurora"]
